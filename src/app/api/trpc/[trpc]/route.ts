@@ -3,23 +3,32 @@ import { type NextRequest } from 'next/server';
 
 import { appRouter } from '@/server/api/root';
 import { createTRPCContext } from '@/server/api/trpc';
-
-// Handle missing Firebase config during build
-const isFirebaseConfigured = () => {
-  return !!(
-    process.env.FIREBASE_PROJECT_ID && 
-    process.env.FIREBASE_CLIENT_EMAIL && 
-    process.env.FIREBASE_PRIVATE_KEY
-  );
-};
+import { isBuildTime, isFirebaseConfigured } from '@/lib/build-safe';
 
 const handler = async (req: NextRequest) => {
-  // During build time, return a simple response if Firebase isn't configured
-  if (!isFirebaseConfigured() && process.env.NODE_ENV !== 'development') {
+  // During build time, return a simple 200 response to allow page data collection
+  if (isBuildTime()) {
     return new Response(
-      JSON.stringify({ error: 'Firebase not configured' }), 
+      JSON.stringify({ result: { data: null } }), 
       { 
-        status: 503,
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+
+  // During runtime, check Firebase config
+  if (!isFirebaseConfigured() && process.env.NODE_ENV === 'production') {
+    return new Response(
+      JSON.stringify({ 
+        error: { 
+          message: 'Firebase not configured',
+          code: -32603,
+          data: { code: 'INTERNAL_SERVER_ERROR' }
+        }
+      }), 
+      { 
+        status: 200, // tRPC expects 200 status for error responses
         headers: { 'Content-Type': 'application/json' }
       }
     );
