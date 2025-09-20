@@ -1,21 +1,25 @@
 import { initTRPC, TRPCError } from '@trpc/server';
-import { type CreateNextContextOptions } from '@trpc/server/adapters/next';
 import superjson from 'superjson';
 import { ZodError } from 'zod';
 // Firebase auth is handled client-side
 import { adminAuth } from '@/lib/firebase-admin';
 
+interface CreateContextOptions {
+  req: Request;
+}
+
 /**
  * 1. CONTEXT
  * This is the context you want to use with your API.
  */
-export const createTRPCContext = async (opts: CreateNextContextOptions) => {
-  const { req, res } = opts;
+export const createTRPCContext = async (opts: CreateContextOptions) => {
+  const { req } = opts;
 
   // Get the session from the authorization header
   const getUser = async () => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
+      const authHeader = req.headers.get('authorization');
+      const token = authHeader?.replace('Bearer ', '');
       if (!token) return null;
 
       const decodedToken = await adminAuth.verifyIdToken(token);
@@ -34,7 +38,6 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
 
   return {
     req,
-    res,
     user,
   };
 };
