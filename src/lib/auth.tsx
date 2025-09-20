@@ -5,7 +5,7 @@ import { User, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEma
 import { auth } from './firebase';
 
 interface AuthContextType {
-  user: User | null;
+  user: (User & { householdId?: string; role?: string }) | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
@@ -15,30 +15,34 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<(User & { householdId?: string; role?: string }) | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-      
-      // Store auth token for tRPC
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        user.getIdToken().then(token => {
-          try {
-            localStorage.setItem('authToken', token);
-          } catch (error) {
-            console.error('Error storing auth token:', error);
-          }
-        });
+        // For now, we'll add some mock properties until we implement user profiles
+        const extendedUser = user as User & { householdId?: string; role?: string };
+        extendedUser.householdId = 'household-1'; // TODO: Get from user profile in Firestore
+        extendedUser.role = 'parent'; // TODO: Get from user profile in Firestore
+        setUser(extendedUser);
+        
+        // Store auth token for tRPC
+        try {
+          const token = await user.getIdToken();
+          localStorage.setItem('authToken', token);
+        } catch (error) {
+          console.error('Error storing auth token:', error);
+        }
       } else {
+        setUser(null);
         try {
           localStorage.removeItem('authToken');
         } catch (error) {
           console.error('Error removing auth token:', error);
         }
       }
+      setLoading(false);
     });
 
     return unsubscribe;

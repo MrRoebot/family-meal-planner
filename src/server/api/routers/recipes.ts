@@ -14,14 +14,35 @@ export const recipesRouter = createTRPCRouter({
       if (!adminDb) {
         throw new Error('Database not configured');
       }
-      const query = adminDb!
+      
+      const query = adminDb
         .collection('households')
         .doc(input.householdId)
         .collection('recipes')
         .orderBy('createdAt', 'desc');
 
       const snapshot = await query.get();
-      return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as any));
+      let recipes = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as any));
+
+      // Apply search filter
+      if (input.search) {
+        const searchLower = input.search.toLowerCase();
+        recipes = recipes.filter((recipe: any) =>
+          recipe.title?.toLowerCase().includes(searchLower) ||
+          recipe.description?.toLowerCase().includes(searchLower) ||
+          recipe.tags?.some((tag: string) => tag.toLowerCase().includes(searchLower)) ||
+          recipe.ingredients?.some((ing: any) => ing.name?.toLowerCase().includes(searchLower))
+        );
+      }
+
+      // Apply tags filter
+      if (input.tags && input.tags.length > 0) {
+        recipes = recipes.filter((recipe: any) =>
+          input.tags!.some(tag => recipe.tags?.includes(tag))
+        );
+      }
+
+      return recipes;
     }),
 
   // Create new recipe
@@ -46,14 +67,14 @@ export const recipesRouter = createTRPCRouter({
         throw new Error('Database not configured');
       }
       const { householdId, ...recipeData } = input;
-      const recipeId = adminDb!
+      const recipeRef = adminDb
         .collection('households')
         .doc(householdId)
         .collection('recipes')
-        .doc().id;
+        .doc();
 
       const recipe = {
-        id: recipeId,
+        id: recipeRef.id,
         ...recipeData,
         householdId,
         createdBy: ctx.user.id,
@@ -62,14 +83,33 @@ export const recipesRouter = createTRPCRouter({
         timesPlanned: 0,
       };
 
-      await adminDb!
-        .collection('households')
-        .doc(householdId)
-        .collection('recipes')
-        .doc(recipeId)
-        .set(recipe);
+      await recipeRef.set(recipe);
 
       return recipe;
+    }),
+
+  // Get single recipe by ID
+  getById: protectedProcedure
+    .input(z.object({
+      householdId: z.string(),
+      recipeId: z.string(),
+    }))
+    .query(async ({ input }) => {
+      if (!adminDb) {
+        throw new Error('Database not configured');
+      }
+      const recipeDoc = await adminDb
+        .collection('households')
+        .doc(input.householdId)
+        .collection('recipes')
+        .doc(input.recipeId)
+        .get();
+
+      if (!recipeDoc.exists) {
+        throw new Error('Recipe not found');
+      }
+
+      return { id: recipeDoc.id, ...recipeDoc.data() } as any;
     }),
 
   // Toggle like on recipe
@@ -82,7 +122,7 @@ export const recipesRouter = createTRPCRouter({
       if (!adminDb) {
         throw new Error('Database not configured');
       }
-      const recipeRef = adminDb!
+      const recipeRef = adminDb
         .collection('households')
         .doc(input.householdId)
         .collection('recipes')
