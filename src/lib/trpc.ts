@@ -17,10 +17,15 @@ export const api = createTRPCNext<AppRouter>({
         httpBatchLink({
           url: `${getBaseUrl()}/api/trpc`,
           headers() {
-            // Get auth token from client
+            // Get auth token from client - only run on client side
             if (typeof window !== 'undefined') {
-              const token = localStorage.getItem('authToken');
-              return token ? { authorization: `Bearer ${token}` } : {};
+              try {
+                const token = localStorage.getItem('authToken');
+                return token ? { authorization: `Bearer ${token}` } : {};
+              } catch (error) {
+                console.error('Error accessing localStorage:', error);
+                return {};
+              }
             }
             return {};
           },

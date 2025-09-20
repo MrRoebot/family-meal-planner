@@ -26,10 +26,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Store auth token for tRPC
       if (user) {
         user.getIdToken().then(token => {
-          localStorage.setItem('authToken', token);
+          try {
+            localStorage.setItem('authToken', token);
+          } catch (error) {
+            console.error('Error storing auth token:', error);
+          }
         });
       } else {
-        localStorage.removeItem('authToken');
+        try {
+          localStorage.removeItem('authToken');
+        } catch (error) {
+          console.error('Error removing auth token:', error);
+        }
       }
     });
 
@@ -39,18 +47,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     const result = await signInWithEmailAndPassword(auth, email, password);
     const token = await result.user.getIdToken();
-    localStorage.setItem('authToken', token);
+    try {
+      localStorage.setItem('authToken', token);
+    } catch (error) {
+      console.error('Error storing auth token:', error);
+    }
   };
 
   const signUp = async (email: string, password: string) => {
     const result = await createUserWithEmailAndPassword(auth, email, password);
     const token = await result.user.getIdToken();
-    localStorage.setItem('authToken', token);
+    try {
+      localStorage.setItem('authToken', token);
+    } catch (error) {
+      console.error('Error storing auth token:', error);
+    }
   };
 
   const logout = async () => {
     await signOut(auth);
-    localStorage.removeItem('authToken');
+    try {
+      localStorage.removeItem('authToken');
+    } catch (error) {
+      console.error('Error removing auth token:', error);
+    }
   };
 
   const value = {

@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { api } from "@/lib/trpc";
-import { AuthProvider } from "@/lib/auth";
+import AppProviders from "@/components/AppProviders";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,7 +18,7 @@ export const metadata: Metadata = {
   description: "Quickly plan weekly family meals and generate shopping lists",
 };
 
-function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -29,12 +28,10 @@ function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
+        <AppProviders>
           {children}
-        </AuthProvider>
+        </AppProviders>
       </body>
     </html>
   );
 }
-
-export default api.withTRPC(RootLayout);
