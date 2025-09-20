@@ -10,7 +10,7 @@ export default function RecipesPage() {
         
         <div className="bg-white rounded-lg shadow p-6">
           <p className="text-gray-600 mb-4">
-            Manage your family's favorite recipes
+            Manage your family&apos;s favorite recipes
           </p>
           
           <div className="text-center py-12">
@@ -19,7 +19,7 @@ export default function RecipesPage() {
               No recipes yet
             </h3>
             <p className="text-gray-500 mb-4">
-              Start by adding your family's favorite recipes
+              Start by adding your family&apos;s favorite recipes
             </p>
             <button
               disabled

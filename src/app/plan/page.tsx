@@ -29,7 +29,7 @@ export default function PlanPage() {
           </p>
           
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold">This Week's Meals</h2>
+            <h2 className="text-lg font-semibold">This Week&apos;s Meals</h2>
             
             {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
               <div key={day} className="border border-gray-200 rounded-lg p-4">

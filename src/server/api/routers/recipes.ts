@@ -11,7 +11,7 @@ export const recipesRouter = createTRPCRouter({
       tags: z.array(z.string()).optional(),
     }))
     .query(async ({ input }) => {
-      let query = adminDb
+      const query = adminDb
         .collection('households')
         .doc(input.householdId)
         .collection('recipes')

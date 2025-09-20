@@ -2,7 +2,7 @@ import { initTRPC, TRPCError } from '@trpc/server';
 import { type CreateNextContextOptions } from '@trpc/server/adapters/next';
 import superjson from 'superjson';
 import { ZodError } from 'zod';
-import { auth } from '@/lib/firebase';
+// Firebase auth is handled client-side
 import { adminAuth } from '@/lib/firebase-admin';
 
 /**

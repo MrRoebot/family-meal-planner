@@ -26,8 +26,9 @@ export default function LoginPage() {
         await signIn(email, password);
       }
       router.push('/');
-    } catch (error: any) {
-      setError(error.message || 'An error occurred');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

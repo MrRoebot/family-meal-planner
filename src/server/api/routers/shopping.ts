@@ -47,8 +47,8 @@ export const shoppingRouter = createTRPCRouter({
       // Consolidate ingredients
       const ingredientMap = new Map();
 
-      recipes.forEach((recipe: any) => {
-        recipe.ingredients?.forEach((ingredient: any) => {
+      recipes.forEach((recipe: { id: string; title: string; ingredients?: Array<{ name: string; amount?: string; category?: string }> }) => {
+        recipe.ingredients?.forEach((ingredient) => {
           const key = ingredient.name.toLowerCase();
           if (ingredientMap.has(key)) {
             const existing = ingredientMap.get(key);
