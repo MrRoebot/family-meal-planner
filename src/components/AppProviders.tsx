@@ -1,14 +1,18 @@
 'use client';
 
+import { ReactQueryProvider } from '@/lib/react-query';
 import { AuthProvider } from '@/lib/auth';
-import { api } from '@/lib/trpc';
 
-function AppProvidersInner({ children }: { children: React.ReactNode }) {
-  return (
-    <AuthProvider>
-      {children}
-    </AuthProvider>
-  );
+interface AppProvidersProps {
+  children: React.ReactNode;
 }
 
-export default api.withTRPC(AppProvidersInner);
+export default function AppProviders({ children }: AppProvidersProps) {
+  return (
+    <ReactQueryProvider>
+      <AuthProvider>
+        {children}
+      </AuthProvider>
+    </ReactQueryProvider>
+  );
+}
