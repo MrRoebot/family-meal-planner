@@ -47,7 +47,9 @@
 
 ### 2. Environment Configuration
 
-Update `/Volumes/OWC Envoy/wfd/family-meal-planner/.env.local`:
+**Important**: You need to create a `.env.local` file in the project root with your Firebase configuration.
+
+Create `/Volumes/OWC Envoy/wfd/family-meal-planner/.env.local` with the following content:
 
 ```env
 # From Firebase Web App Configuration
@@ -58,7 +60,7 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 
-# From Service Account JSON
+# From Service Account JSON (IMPORTANT: Keep private key properly formatted)
 FIREBASE_PROJECT_ID=your_project_id
 FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your_project_id.iam.gserviceaccount.com
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----\n"
@@ -67,6 +69,8 @@ FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----E
 NEXTAUTH_SECRET=generate_a_random_string_here
 NEXTAUTH_URL=http://localhost:3000
 ```
+
+**Note**: The Firebase private key must be properly formatted with `\n` for newlines. If you get a "Invalid PEM formatted message" error, ensure the private key is correctly copied from the JSON file.
 
 ### 3. GitHub Repository Setup
 
@@ -84,9 +88,9 @@ git commit -m "Initial commit: Family Meal Planner MVP setup"
 
 # Create GitHub repository (via GitHub CLI or web interface)
 # Then add remote and push
-git remote add origin https://github.com/yourusername/family-meal-planner.git
+git remote add origin https://github.com/MrRoebot/family-meal-planner.git
 git branch -M main
-git push -u origin main
+
 ```
 
 ### 4. Vercel Deployment Setup

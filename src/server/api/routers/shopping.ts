@@ -42,12 +42,16 @@ export const shoppingRouter = createTRPCRouter({
       const recipeDocs = await Promise.all(recipePromises);
       const recipes = recipeDocs
         .filter(doc => doc.exists)
-        .map(doc => ({ id: doc.id, ...doc.data() }));
+        .map(doc => ({ id: doc.id, ...doc.data() })) as Array<{
+          id: string;
+          title: string;
+          ingredients?: Array<{ name: string; amount?: string; category?: string }>;
+        }>;
 
       // Consolidate ingredients
       const ingredientMap = new Map();
 
-      recipes.forEach((recipe: { id: string; title: string; ingredients?: Array<{ name: string; amount?: string; category?: string }> }) => {
+      recipes.forEach((recipe) => {
         recipe.ingredients?.forEach((ingredient) => {
           const key = ingredient.name.toLowerCase();
           if (ingredientMap.has(key)) {

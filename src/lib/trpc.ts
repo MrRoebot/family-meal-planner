@@ -1,4 +1,4 @@
-import { createTRPCNext } from '@trpc/next';
+import { createTRPCReact } from '@trpc/react-query';
 import { httpBatchLink } from '@trpc/client';
 import { type AppRouter } from '@/server/api/root';
 import superjson from 'superjson';
@@ -9,29 +9,27 @@ const getBaseUrl = () => {
   return `http://localhost:${process.env.PORT ?? 3000}`; // dev SSR should use localhost
 };
 
-export const api = createTRPCNext<AppRouter>({
-  config() {
-    return {
+export const api = createTRPCReact<AppRouter>();
+
+// Export client for manual configuration
+export const trpcClient = api.createClient({
+  links: [
+    httpBatchLink({
+      url: `${getBaseUrl()}/api/trpc`,
       transformer: superjson,
-      links: [
-        httpBatchLink({
-          url: `${getBaseUrl()}/api/trpc`,
-          headers() {
-            // Get auth token from client - only run on client side
-            if (typeof window !== 'undefined') {
-              try {
-                const token = localStorage.getItem('authToken');
-                return token ? { authorization: `Bearer ${token}` } : {};
-              } catch (error) {
-                console.error('Error accessing localStorage:', error);
-                return {};
-              }
-            }
+      headers() {
+        // Get auth token from client - only run on client side
+        if (typeof window !== 'undefined') {
+          try {
+            const token = localStorage.getItem('authToken');
+            return token ? { authorization: `Bearer ${token}` } : {};
+          } catch (error) {
+            console.error('Error accessing localStorage:', error);
             return {};
-          },
-        }),
-      ],
-    };
-  },
-  ssr: false,
+          }
+        }
+        return {};
+      },
+    }),
+  ],
 });
