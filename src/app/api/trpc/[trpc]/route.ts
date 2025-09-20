@@ -4,8 +4,28 @@ import { type NextRequest } from 'next/server';
 import { appRouter } from '@/server/api/root';
 import { createTRPCContext } from '@/server/api/trpc';
 
-const handler = async (req: NextRequest) =>
-  fetchRequestHandler({
+// Handle missing Firebase config during build
+const isFirebaseConfigured = () => {
+  return !!(
+    process.env.FIREBASE_PROJECT_ID && 
+    process.env.FIREBASE_CLIENT_EMAIL && 
+    process.env.FIREBASE_PRIVATE_KEY
+  );
+};
+
+const handler = async (req: NextRequest) => {
+  // During build time, return a simple response if Firebase isn't configured
+  if (!isFirebaseConfigured() && process.env.NODE_ENV !== 'development') {
+    return new Response(
+      JSON.stringify({ error: 'Firebase not configured' }), 
+      { 
+        status: 503,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+
+  return fetchRequestHandler({
     endpoint: '/api/trpc',
     req,
     router: appRouter,
@@ -19,5 +39,6 @@ const handler = async (req: NextRequest) =>
           }
         : undefined,
   });
+};
 
 export { handler as GET, handler as POST };

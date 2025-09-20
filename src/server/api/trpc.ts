@@ -18,6 +18,12 @@ export const createTRPCContext = async (opts: CreateContextOptions) => {
   // Get the session from the authorization header
   const getUser = async () => {
     try {
+      // Check if Firebase Admin is configured
+      if (!adminAuth) {
+        console.warn('Firebase Admin not configured. Authentication disabled for build.');
+        return null;
+      }
+
       const authHeader = req.headers.get('authorization');
       const token = authHeader?.replace('Bearer ', '');
       if (!token) return null;

@@ -5,7 +5,10 @@ import { adminDb } from '@/lib/firebase-admin';
 export const authRouter = createTRPCRouter({
   // Get current user profile
   getProfile: protectedProcedure.query(async ({ ctx }) => {
-    const userDoc = await adminDb.collection('users').doc(ctx.user.id).get();
+    if (!adminDb) {
+      throw new Error('Database not configured');
+    }
+    const userDoc = await adminDb!.collection('users').doc(ctx.user.id).get();
     
     if (!userDoc.exists) {
       // Create user if doesn't exist
@@ -19,12 +22,12 @@ export const authRouter = createTRPCRouter({
         lastActiveAt: new Date(),
       };
       
-      await adminDb.collection('users').doc(ctx.user.id).set(newUser);
+      await adminDb!.collection('users').doc(ctx.user.id).set(newUser);
       return newUser;
     }
     
     // Update last active
-    await adminDb.collection('users').doc(ctx.user.id).update({
+    await adminDb!.collection('users').doc(ctx.user.id).update({
       lastActiveAt: new Date(),
     });
     
@@ -39,7 +42,10 @@ export const authRouter = createTRPCRouter({
       weekStartsOn: z.enum(['sunday', 'monday']).default('sunday'),
     }))
     .mutation(async ({ ctx, input }) => {
-      const householdId = adminDb.collection('households').doc().id;
+      if (!adminDb) {
+        throw new Error('Database not configured');
+      }
+      const householdId = adminDb!.collection('households').doc().id;
       
       const household = {
         id: householdId,
@@ -57,8 +63,8 @@ export const authRouter = createTRPCRouter({
       
       // Create household and update user
       await Promise.all([
-        adminDb.collection('households').doc(householdId).set(household),
-        adminDb.collection('users').doc(ctx.user.id).update({
+        adminDb!.collection('households').doc(householdId).set(household),
+        adminDb!.collection('users').doc(ctx.user.id).update({
           householdId,
         }),
       ]);

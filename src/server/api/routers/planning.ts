@@ -10,7 +10,10 @@ export const planningRouter = createTRPCRouter({
       weekStartDate: z.string(), // ISO date string
     }))
     .query(async ({ input }) => {
-      const snapshot = await adminDb
+      if (!adminDb!) {
+        throw new Error('Database not configured');
+      }
+      const snapshot = await adminDb!
         .collection('households')
         .doc(input.householdId)
         .collection('weeklyPlans')
@@ -34,10 +37,13 @@ export const planningRouter = createTRPCRouter({
       recipeId: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
+      if (!adminDb!) {
+        throw new Error('Database not configured');
+      }
       const weekDate = new Date(input.weekStartDate);
       
       // First, try to find existing plan
-      const existingPlanSnapshot = await adminDb
+      const existingPlanSnapshot = await adminDb!
         .collection('households')
         .doc(input.householdId)
         .collection('weeklyPlans')
@@ -62,7 +68,7 @@ export const planningRouter = createTRPCRouter({
         return { id: planDoc.id, ...planData, meals: updatedMeals };
       } else {
         // Create new plan
-        const planId = adminDb
+        const planId = adminDb!
           .collection('households')
           .doc(input.householdId)
           .collection('weeklyPlans')
@@ -79,7 +85,7 @@ export const planningRouter = createTRPCRouter({
           lastModified: new Date(),
         };
 
-        await adminDb
+        await adminDb!
           .collection('households')
           .doc(input.householdId)
           .collection('weeklyPlans')
@@ -98,7 +104,10 @@ export const planningRouter = createTRPCRouter({
       day: z.string(),
     }))
     .mutation(async ({ input }) => {
-      const snapshot = await adminDb
+      if (!adminDb!) {
+        throw new Error('Database not configured');
+      }
+      const snapshot = await adminDb!
         .collection('households')
         .doc(input.householdId)
         .collection('weeklyPlans')

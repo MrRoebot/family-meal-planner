@@ -10,8 +10,11 @@ export const shoppingRouter = createTRPCRouter({
       weeklyPlanId: z.string(),
     }))
     .mutation(async ({ input }) => {
+      if (!adminDb) {
+        throw new Error('Database not configured');
+      }
       // Get the weekly plan
-      const planDoc = await adminDb
+      const planDoc = await adminDb!
         .collection('households')
         .doc(input.householdId)
         .collection('weeklyPlans')
@@ -31,7 +34,7 @@ export const shoppingRouter = createTRPCRouter({
 
       // Get all recipes for the week
       const recipePromises = recipeIds.map(id =>
-        adminDb
+        adminDb!
           .collection('households')
           .doc(input.householdId)
           .collection('recipes')
@@ -78,7 +81,7 @@ export const shoppingRouter = createTRPCRouter({
       const items = Array.from(ingredientMap.values());
 
       // Create shopping list
-      const shoppingListId = adminDb
+      const shoppingListId = adminDb!
         .collection('households')
         .doc(input.householdId)
         .collection('shoppingLists')
@@ -93,7 +96,7 @@ export const shoppingRouter = createTRPCRouter({
         userGenerated: true,
       };
 
-      await adminDb
+      await adminDb!
         .collection('households')
         .doc(input.householdId)
         .collection('shoppingLists')
@@ -110,7 +113,10 @@ export const shoppingRouter = createTRPCRouter({
       shoppingListId: z.string(),
     }))
     .query(async ({ input }) => {
-      const doc = await adminDb
+      if (!adminDb) {
+        throw new Error('Database not configured');
+      }
+      const doc = await adminDb!
         .collection('households')
         .doc(input.householdId)
         .collection('shoppingLists')
@@ -132,7 +138,10 @@ export const shoppingRouter = createTRPCRouter({
       itemIndex: z.number(),
     }))
     .mutation(async ({ input }) => {
-      const listRef = adminDb
+      if (!adminDb) {
+        throw new Error('Database not configured');
+      }
+      const listRef = adminDb!
         .collection('households')
         .doc(input.householdId)
         .collection('shoppingLists')

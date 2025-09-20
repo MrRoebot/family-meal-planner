@@ -11,14 +11,17 @@ export const recipesRouter = createTRPCRouter({
       tags: z.array(z.string()).optional(),
     }))
     .query(async ({ input }) => {
-      const query = adminDb
+      if (!adminDb) {
+        throw new Error('Database not configured');
+      }
+      const query = adminDb!
         .collection('households')
         .doc(input.householdId)
         .collection('recipes')
         .orderBy('createdAt', 'desc');
 
       const snapshot = await query.get();
-      return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as any));
     }),
 
   // Create new recipe
@@ -39,8 +42,11 @@ export const recipesRouter = createTRPCRouter({
       sourceUrl: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
+      if (!adminDb) {
+        throw new Error('Database not configured');
+      }
       const { householdId, ...recipeData } = input;
-      const recipeId = adminDb
+      const recipeId = adminDb!
         .collection('households')
         .doc(householdId)
         .collection('recipes')
@@ -56,7 +62,7 @@ export const recipesRouter = createTRPCRouter({
         timesPlanned: 0,
       };
 
-      await adminDb
+      await adminDb!
         .collection('households')
         .doc(householdId)
         .collection('recipes')
@@ -73,7 +79,10 @@ export const recipesRouter = createTRPCRouter({
       recipeId: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
-      const recipeRef = adminDb
+      if (!adminDb) {
+        throw new Error('Database not configured');
+      }
+      const recipeRef = adminDb!
         .collection('households')
         .doc(input.householdId)
         .collection('recipes')
