@@ -12,14 +12,12 @@ export const isBuildTime = () => {
   ) || process.env.NEXT_PHASE === 'phase-production-build';
 };
 
-// Check if Firebase is properly configured
+// Check if Firebase Admin SDK is properly configured (server-side only)
 export const isFirebaseConfigured = () => {
   return !!(
-    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID &&
-    process.env.NEXT_PUBLIC_FIREBASE_API_KEY &&
     process.env.FIREBASE_PROJECT_ID &&
     process.env.FIREBASE_CLIENT_EMAIL &&
-    process.env.FIREBASE_PRIVATE_KEY
+    (process.env.FIREBASE_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEY_BASE64)
   );
 };
 
