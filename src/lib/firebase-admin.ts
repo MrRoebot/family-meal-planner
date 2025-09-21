@@ -44,6 +44,11 @@ if (!isBuildTime() && isFirebaseConfigured()) {
     console.log('Firebase Admin initialized successfully');
   } catch (error) {
     console.error('Failed to initialize Firebase Admin:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined,
+    });
   }
 } else if (isBuildTime()) {
   console.log('Skipping Firebase initialization during build time');
