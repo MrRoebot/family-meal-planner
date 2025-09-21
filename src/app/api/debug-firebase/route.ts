@@ -29,6 +29,8 @@ export async function GET() {
     test: {
       canAccessFirestore: false,
       error: null as string | null,
+      directInitSuccess: false,
+      directInitError: null as string | null,
     }
   };
 
