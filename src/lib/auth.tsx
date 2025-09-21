@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.setItem('authToken', token);
 
           // Initialize/fetch user profile and household
-          const { user: userData, household } = await initializeUser.mutateAsync({
+          const { user: userData } = await initializeUser.mutateAsync({
             uid: firebaseUser.uid,
             email: firebaseUser.email || '',
             name: firebaseUser.displayName || undefined,
@@ -39,8 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           // Create extended user object with profile data
           const extendedUser = firebaseUser as User & { householdId?: string; role?: string };
-          extendedUser.householdId = userData.householdId;
-          extendedUser.role = userData.role;
+          extendedUser.householdId = userData?.householdId;
+          extendedUser.role = userData?.role;
           
           setUser(extendedUser);
         } catch (error) {

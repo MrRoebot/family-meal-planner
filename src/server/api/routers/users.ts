@@ -23,9 +23,13 @@ export const usersRouter = createTRPCRouter({
       if (userDoc.exists) {
         // User exists, return their data
         const userData = userDoc.data();
+        const householdDoc = userData?.householdId 
+          ? await adminDb.collection('households').doc(userData.householdId).get()
+          : null;
+        
         return {
           user: userData,
-          household: await adminDb.collection('households').doc(userData?.householdId).get().then(doc => doc.data()),
+          household: householdDoc?.data() || null,
         };
       }
 
@@ -87,11 +91,13 @@ export const usersRouter = createTRPCRouter({
       }
 
       const userData = userDoc.data();
-      const householdDoc = await adminDb.collection('households').doc(userData?.householdId).get();
+      const householdDoc = userData?.householdId 
+        ? await adminDb.collection('households').doc(userData.householdId).get()
+        : null;
       
       return {
         user: userData,
-        household: householdDoc.exists ? householdDoc.data() : null,
+        household: householdDoc?.exists ? householdDoc.data() : null,
       };
     }),
 
