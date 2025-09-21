@@ -11,7 +11,7 @@ export default function RecipeDetailPage() {
   const { user } = useAuth();
   
   const recipeId = params.id as string;
-  const householdId = user?.householdId || 'household-1';
+  const householdId = user?.householdId || `household-${user?.uid}`;
 
   const { data: recipe, isLoading, error } = trpc.recipes.getById.useQuery({
     householdId,

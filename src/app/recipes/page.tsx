@@ -13,7 +13,7 @@ export default function RecipesPage() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showImport, setShowImport] = useState(false);
 
-  const householdId = user?.householdId || 'household-1';
+  const householdId = user?.householdId || `household-${user?.uid}`;
 
   const {
     data: recipes = [],
